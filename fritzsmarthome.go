@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package fritzsmarthome provides functions to access the FRITZ! Smart-Home-API.
 package fritzsmarthome
 
 import (
@@ -39,20 +40,19 @@ import (
 // ErrClientFailure indicates a system error while invoking the client.
 var ErrClientFailure = errors.New("client call failure")
 
-var ErrLoginFailure = errors.New("login failure")
-
 // ErrAPIFailure indicates an API call has failed with an API error.
 var ErrAPIFailure = errors.New("API failure")
 
-type APIError struct {
+type apiError struct {
 	Code    int
 	Message string
 }
 
-func (e *APIError) Error() string {
+func (e *apiError) Error() string {
 	return fmt.Sprintf("%d %s", e.Code, e.Message)
 }
 
+// Client provides an API client handling also the necessary authentication.
 type Client struct {
 	baseURL       *url.URL
 	user          string
@@ -466,13 +466,13 @@ func (client *Client) wrapSystemError(err error) error {
 
 func (client *Client) checkAPIResponse(httpResponse *http.Response, apiResponse *api.ErrorResponse) error {
 	if apiResponse != nil {
-		apiErrorList := *apiResponse.Errors
-		apiErrors := make([]error, 0, len(apiErrorList))
-		for _, apiError := range apiErrorList {
-			apiErrors = append(apiErrors, &APIError{Code: apiError.Code, Message: *apiError.Message})
+		apiErrList := *apiResponse.Errors
+		apiErrs := make([]error, 0, len(apiErrList))
+		for _, apiErr := range apiErrList {
+			apiErrs = append(apiErrs, &apiError{Code: apiErr.Code, Message: *apiErr.Message})
 		}
-		if len(apiErrors) > 0 {
-			return fmt.Errorf("%w %s (cause: %w)", ErrAPIFailure, client.operationID(), errors.Join(apiErrors...))
+		if len(apiErrs) > 0 {
+			return fmt.Errorf("%w %s (cause: %w)", ErrAPIFailure, client.operationID(), errors.Join(apiErrs...))
 		}
 	}
 	if httpResponse.StatusCode != http.StatusOK {
@@ -483,11 +483,11 @@ func (client *Client) checkAPIResponse(httpResponse *http.Response, apiResponse 
 }
 
 func (client *Client) retryAfterAuthenticate(apiStatus error) bool {
-	apiError := &APIError{}
-	if !errors.As(apiStatus, &apiError) {
+	apiErr := &apiError{}
+	if !errors.As(apiStatus, &apiErr) {
 		return false
 	}
-	if apiError.Code != 3001 {
+	if apiErr.Code != 3001 {
 		return false
 	}
 	client.logger.Info("renewing session ID")

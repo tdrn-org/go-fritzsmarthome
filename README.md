@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tdrn-org/go-fritzsmarthome)](https://goreportcard.com/report/github.com/tdrn-org/go-fritzsmarthome)
 
 ### FRITZ! Smart-Home-API
-The [FRITZ! Smart Home system](https://fritz.com/collections/smart-home) provides a REST [API](https://fritz.com/pages/schnittstellen) to access Smart Home capable devices to evaluate and control the connected devices. This library provides the Go wrapper for this API. 
+The [FRITZ! Smart Home system](https://fritz.com/collections/smart-home) provides a [REST API](https://fritz.com/pages/schnittstellen) to access Smart Home capable devices to evaluate and control the connected devices. This library provides the Go wrapper for this API. 
 It is based on the provided [OpenAPI specification](https://fritz.com/pages/schnittstellen).
 
 ### License

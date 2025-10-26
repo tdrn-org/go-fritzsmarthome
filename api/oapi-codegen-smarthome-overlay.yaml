@@ -1,0 +1,7 @@
+overlay: 1.0.0
+info:
+  title: "Remove readOnly attributes to make schemes digestable by oapi-codegen"
+  version: 0.0.0
+actions:
+- target: $..readOnly
+  remove: true

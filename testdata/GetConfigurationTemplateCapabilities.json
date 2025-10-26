@@ -1,0 +1,28 @@
+{
+    "applyTypes": [
+      "tamControl",
+      "guestWifi",
+      "mainWifi",
+      "dialHelper",
+      "httpRequest",
+      "customNotification"
+    ],
+    "blindLevelUnitUids": [],
+    "colorUnitUids": [],
+    "interfaces": [
+      "telephoneAnsweringMachineInterface",
+      "guestWifiInterface",
+      "mainWifiInterface",
+      "dialHelperInterface",
+      "httpRequestInterface",
+      "notificationInterface"
+    ],
+    "lampLevelUnitUids": [],
+    "onOffUnitUids": [],
+    "telephoneAnsweringMachineUids": [
+      "TAM0"
+    ],
+    "templateUids": [],
+    "thermostatUnitUids": [],
+    "triggerUids": []
+  }

@@ -1,0 +1,16 @@
+[
+    {
+      "activeSubscriptionUid": "",
+      "isDectAvailable": true,
+      "isSmarthomeMaster": true,
+      "isZigbeeAvailable": false,
+      "serial": "1234567890AB"
+    },
+    {
+      "activeSubscriptionUid": "",
+      "isDectAvailable": true,
+      "isSmarthomeMaster": false,
+      "isZigbeeAvailable": true,
+      "serial": "BA0987654321"
+    }
+  ]

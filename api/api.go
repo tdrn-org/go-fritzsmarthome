@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package api contains the generated objects and functions of the Smart-Home-API.
 package api
 
 //go:generate go run ../cmd/build/build.go fetch https://fritz.support/resources/SmarthomeRestApiFRITZOS82.yaml smarthome.gen.yaml
@@ -23,7 +24,7 @@ import (
 	_ "embed"
 )
 
-// The openhue-api spec yaml file used to generate the API code.
+// The Smart-Home-API spec yaml file used to generate the API code.
 //
 //go:embed smarthome.gen.yaml
 var SmartHomeRestApiSpecYaml []byte

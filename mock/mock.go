@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package mock provides a mock implementation of the Smart-Home-API for testing.
 package mock
 
 import (
@@ -35,8 +36,10 @@ import (
 	"github.com/tdrn-org/go-fritzsmarthome/api"
 )
 
+// Username defines the user name used for authentication towards a mock server.
 const Username string = "fritz1337"
 
+// Password defines the password used for authentication towards a mock server.
 const Password string = "1example"
 
 const loginPath string = "/login_sid.lua"
@@ -45,6 +48,7 @@ const mockSessionID string = "0123456789"
 
 const mockAuthorization string = "AVM-SID " + mockSessionID
 
+// Server represents a mock instance.
 type Server struct {
 	httpListener net.Listener
 	connectURL   *url.URL
@@ -53,6 +57,10 @@ type Server struct {
 	httpServer   *http.Server
 }
 
+// Start starts and returns a new mock instance.
+//
+// Start panics in case of an error. The returned server
+// is listening on localhost using a dynamic port.
 func Start() *Server {
 	httpListener, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -74,10 +82,12 @@ func Start() *Server {
 	return server
 }
 
+// ConnectURL gets the connect URL for this mock instance.
 func (s *Server) ConnectURL() *url.URL {
 	return s.connectURL
 }
 
+// Stop stops this mock instance.
 func (s *Server) Stop(ctx context.Context) {
 	s.httpServer.Shutdown(ctx)
 	s.stoppedWG.Wait()

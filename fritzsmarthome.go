@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// Package fritzsmarthome provides functions to access the FRITZ! Smart-Home-API.
+// Package fritzsmarthome provides the necessary functions to access the FRITZ! Smart-Home-API.
 package fritzsmarthome
 
 import (
@@ -37,10 +37,10 @@ import (
 	"github.com/tdrn-org/go-fritzsmarthome/api"
 )
 
-// ErrClientFailure indicates a system error while invoking the client.
+// ErrClientFailure indicates a system error while invoking the Smart-Home-API.
 var ErrClientFailure = errors.New("client call failure")
 
-// ErrAPIFailure indicates an API call has failed with an API error.
+// ErrAPIFailure indicates an API error while invoking the Smart-Home-API.
 var ErrAPIFailure = errors.New("API failure")
 
 type apiError struct {
@@ -52,7 +52,7 @@ func (e *apiError) Error() string {
 	return fmt.Sprintf("%d %s", e.Code, e.Message)
 }
 
-// Client provides an API client handling also the necessary authentication.
+// Client instances are used to access the Smart-Home-API via a given device.
 type Client struct {
 	baseURL       *url.URL
 	user          string
@@ -64,28 +64,41 @@ type Client struct {
 	authorization string
 }
 
+// ClientOption interface is used to set Client options during Client creation.
 type ClientOption interface {
+	// Apply sets one or more options in the given Client instance.
 	Apply(client *Client)
 }
 
+// ClientOptionFunc type is used to wrap functions into a ClientOption instance.
 type ClientOptionFunc func(client *Client)
 
+// Apply sets one or more options in the given Client instance.
 func (f ClientOptionFunc) Apply(client *Client) {
 	f(client)
 }
 
+// WithHttpClient sets a Client instance's [http.Client] which is used
+// to access the Smart-Home-API device.
 func WithHttpClient(httpClient *http.Client) ClientOptionFunc {
 	return func(client *Client) {
 		client.httpClient = httpClient
 	}
 }
 
+// WithLogger sets a Client instance's [slog.Logger] which is used
+// for logging.
 func WithLogger(logger *slog.Logger) ClientOptionFunc {
 	return func(client *Client) {
 		client.logger = logger
 	}
 }
 
+// NewClient creates a new Client instance using the given
+// connect URL as well as Client options.
+//
+// Beside the actual URL to access the Smart-Home-API device
+// the connect URL must also include the login credentials.
 func NewClient(connectURL *url.URL, options ...ClientOption) (*Client, error) {
 	baseURL := &url.URL{
 		Scheme: connectURL.Scheme,
@@ -120,6 +133,9 @@ func NewClient(connectURL *url.URL, options ...ClientOption) (*Client, error) {
 	return client, nil
 }
 
+// BaseURL gets the base URL used to access the Smart-Home-API device.
+//
+// The base URL does not contain a path and no login credentials.
 func (client *Client) BaseURL() *url.URL {
 	return client.baseURL
 }
@@ -132,6 +148,7 @@ func (client *Client) loginURL() *url.URL {
 	return loginURL
 }
 
+// DeleteConfigurationDeviceByUID API call.
 func (client *Client) DeleteConfigurationDeviceByUID(ctx context.Context, uid string) (*api.DeleteConfigurationDeviceByUIDResponse, error) {
 	response, err := client.deleteConfigurationDeviceByUID(ctx, uid)
 	if client.retryAfterAuthenticate(err) {
@@ -148,6 +165,7 @@ func (client *Client) deleteConfigurationDeviceByUID(ctx context.Context, uid st
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetConfigurationDeviceByUID API call.
 func (client *Client) GetConfigurationDeviceByUID(ctx context.Context, uid string) (*api.GetConfigurationDeviceByUIDResponse, error) {
 	response, err := client.getConfigurationDeviceByUID(ctx, uid)
 	if client.retryAfterAuthenticate(err) {
@@ -164,6 +182,7 @@ func (client *Client) getConfigurationDeviceByUID(ctx context.Context, uid strin
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// PutConfigurationDeviceByUID API call.
 func (client *Client) PutConfigurationDeviceByUID(ctx context.Context, uid string, body api.PutConfigurationDeviceByUIDJSONRequestBody) (*api.PutConfigurationDeviceByUIDResponse, error) {
 	response, err := client.putConfigurationDeviceByUID(ctx, uid, body)
 	if client.retryAfterAuthenticate(err) {
@@ -180,6 +199,7 @@ func (client *Client) putConfigurationDeviceByUID(ctx context.Context, uid strin
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// PostConfigurationGroupByName API call.
 func (client *Client) PostConfigurationGroupByName(ctx context.Context, params *api.PostConfigurationGroupByNameParams, body api.PostConfigurationGroupByNameJSONRequestBody) (*api.PostConfigurationGroupByNameResponse, error) {
 	response, err := client.postConfigurationGroupByName(ctx, params, body)
 	if client.retryAfterAuthenticate(err) {
@@ -196,6 +216,7 @@ func (client *Client) postConfigurationGroupByName(ctx context.Context, params *
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// DeleteConfigurationGroupByUID API call.
 func (client *Client) DeleteConfigurationGroupByUID(ctx context.Context, uid string) (*api.DeleteConfigurationGroupByUIDResponse, error) {
 	response, err := client.deleteConfigurationGroupByUID(ctx, uid)
 	if client.retryAfterAuthenticate(err) {
@@ -212,14 +233,41 @@ func (client *Client) deleteConfigurationGroupByUID(ctx context.Context, uid str
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetConfigurationGroupByUID API call.
 func (client *Client) GetConfigurationGroupByUID(ctx context.Context, uid string) (*api.GetConfigurationGroupByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getConfigurationGroupByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getConfigurationGroupByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getConfigurationGroupByUID(ctx context.Context, uid string) (*api.GetConfigurationGroupByUIDResponse, error) {
+	response, err := client.apiClient.GetConfigurationGroupByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PutConfigurationGroupByUID API call.
 func (client *Client) PutConfigurationGroupByUID(ctx context.Context, uid string, body api.PutConfigurationGroupByUIDJSONRequestBody) (*api.PutConfigurationGroupByUIDResponse, error) {
-	return nil, nil
+	response, err := client.putConfigurationGroupByUID(ctx, uid, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.putConfigurationGroupByUID(ctx, uid, body)
+	}
+	return response, err
 }
 
+func (client *Client) putConfigurationGroupByUID(ctx context.Context, uid string, body api.PutConfigurationGroupByUIDJSONRequestBody) (*api.PutConfigurationGroupByUIDResponse, error) {
+	response, err := client.apiClient.PutConfigurationGroupByUIDWithResponse(ctx, uid, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetConfigurationTemplateCapabilities API call.
 func (client *Client) GetConfigurationTemplateCapabilities(ctx context.Context) (*api.GetConfigurationTemplateCapabilitiesResponse, error) {
 	response, err := client.getConfigurationTemplateCapabilities(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -236,34 +284,126 @@ func (client *Client) getConfigurationTemplateCapabilities(ctx context.Context) 
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetConfigurationTemplateCapabilities API call.
 func (client *Client) PostConfigurationTemplateByName(ctx context.Context, params *api.PostConfigurationTemplateByNameParams, body api.PostConfigurationTemplateByNameJSONRequestBody) (*api.PostConfigurationTemplateByNameResponse, error) {
-	return nil, nil
+	response, err := client.postConfigurationTemplateByName(ctx, params, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.postConfigurationTemplateByName(ctx, params, body)
+	}
+	return response, err
 }
 
+func (client *Client) postConfigurationTemplateByName(ctx context.Context, params *api.PostConfigurationTemplateByNameParams, body api.PostConfigurationTemplateByNameJSONRequestBody) (*api.PostConfigurationTemplateByNameResponse, error) {
+	response, err := client.apiClient.PostConfigurationTemplateByNameWithResponse(ctx, params, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// DeleteConfigurationTemplateByUID API call.
 func (client *Client) DeleteConfigurationTemplateByUID(ctx context.Context, uid string) (*api.DeleteConfigurationTemplateByUIDResponse, error) {
-	return nil, nil
+	response, err := client.deleteConfigurationTemplateByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.deleteConfigurationTemplateByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) deleteConfigurationTemplateByUID(ctx context.Context, uid string) (*api.DeleteConfigurationTemplateByUIDResponse, error) {
+	response, err := client.apiClient.DeleteConfigurationTemplateByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// DeleteConfigurationTemplateByUID API call.
 func (client *Client) GetConfigurationTemplateByUID(ctx context.Context, uid string) (*api.GetConfigurationTemplateByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getConfigurationTemplateByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getConfigurationTemplateByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getConfigurationTemplateByUID(ctx context.Context, uid string) (*api.GetConfigurationTemplateByUIDResponse, error) {
+	response, err := client.apiClient.GetConfigurationTemplateByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PutConfigurationTemplateByUID API call.
 func (client *Client) PutConfigurationTemplateByUID(ctx context.Context, uid string, body api.PutConfigurationTemplateByUIDJSONRequestBody) (*api.PutConfigurationTemplateByUIDResponse, error) {
-	return nil, nil
+	response, err := client.putConfigurationTemplateByUID(ctx, uid, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.putConfigurationTemplateByUID(ctx, uid, body)
+	}
+	return response, err
 }
 
+func (client *Client) putConfigurationTemplateByUID(ctx context.Context, uid string, body api.PutConfigurationTemplateByUIDJSONRequestBody) (*api.PutConfigurationTemplateByUIDResponse, error) {
+	response, err := client.apiClient.PutConfigurationTemplateByUIDWithResponse(ctx, uid, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetConfigurationUnitByUID API call.
 func (client *Client) GetConfigurationUnitByUID(ctx context.Context, uid string) (*api.GetConfigurationUnitByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getConfigurationUnitByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getConfigurationUnitByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getConfigurationUnitByUID(ctx context.Context, uid string) (*api.GetConfigurationUnitByUIDResponse, error) {
+	response, err := client.apiClient.GetConfigurationUnitByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PutConfigurationUnitByUID API call.
 func (client *Client) PutConfigurationUnitByUID(ctx context.Context, uid string, body api.PutConfigurationUnitByUIDJSONRequestBody) (*api.PutConfigurationUnitByUIDResponse, error) {
-	return nil, nil
+	response, err := client.putConfigurationUnitByUID(ctx, uid, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.putConfigurationUnitByUID(ctx, uid, body)
+	}
+	return response, err
 }
 
+func (client *Client) putConfigurationUnitByUID(ctx context.Context, uid string, body api.PutConfigurationUnitByUIDJSONRequestBody) (*api.PutConfigurationUnitByUIDResponse, error) {
+	response, err := client.apiClient.PutConfigurationUnitByUIDWithResponse(ctx, uid, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PostInstallCodeBySerial API call.
 func (client *Client) PostInstallCodeBySerial(ctx context.Context, serial string, body api.PostInstallCodeBySerialJSONRequestBody) (*api.PostInstallCodeBySerialResponse, error) {
-	return nil, nil
+	response, err := client.postInstallCodeBySerial(ctx, serial, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.postInstallCodeBySerial(ctx, serial, body)
+	}
+	return response, err
 }
 
+func (client *Client) postInstallCodeBySerial(ctx context.Context, serial string, body api.PostInstallCodeBySerialJSONRequestBody) (*api.PostInstallCodeBySerialResponse, error) {
+	response, err := client.apiClient.PostInstallCodeBySerialWithResponse(ctx, serial, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetRadioBasesList API call.
 func (client *Client) GetRadioBasesList(ctx context.Context) (*api.GetRadioBasesListResponse, error) {
 	response, err := client.getRadioBasesList(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -280,26 +420,92 @@ func (client *Client) getRadioBasesList(ctx context.Context) (*api.GetRadioBases
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetRadioBaseBySerial API call.
 func (client *Client) GetRadioBaseBySerial(ctx context.Context, serial string) (*api.GetRadioBaseBySerialResponse, error) {
-	return nil, nil
+	response, err := client.getRadioBaseBySerial(ctx, serial)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getRadioBaseBySerial(ctx, serial)
+	}
+	return response, err
 }
 
+func (client *Client) getRadioBaseBySerial(ctx context.Context, serial string) (*api.GetRadioBaseBySerialResponse, error) {
+	response, err := client.apiClient.GetRadioBaseBySerialWithResponse(ctx, serial, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PostResetCodeBySerial API call.
 func (client *Client) PostResetCodeBySerial(ctx context.Context, serial string, body api.PostResetCodeBySerialJSONRequestBody) (*api.PostResetCodeBySerialResponse, error) {
-	return nil, nil
+	response, err := client.postResetCodeBySerial(ctx, serial, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.postResetCodeBySerial(ctx, serial, body)
+	}
+	return response, err
 }
 
+func (client *Client) postResetCodeBySerial(ctx context.Context, serial string, body api.PostResetCodeBySerialJSONRequestBody) (*api.PostResetCodeBySerialResponse, error) {
+	response, err := client.apiClient.PostResetCodeBySerialWithResponse(ctx, serial, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PostStartSubscriptionBySerial API call.
 func (client *Client) PostStartSubscriptionBySerial(ctx context.Context, serial string, body api.PostStartSubscriptionBySerialJSONRequestBody) (*api.PostStartSubscriptionBySerialResponse, error) {
-	return nil, nil
+	response, err := client.postStartSubscriptionBySerial(ctx, serial, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.postStartSubscriptionBySerial(ctx, serial, body)
+	}
+	return response, err
 }
 
+func (client *Client) postStartSubscriptionBySerial(ctx context.Context, serial string, body api.PostStartSubscriptionBySerialJSONRequestBody) (*api.PostStartSubscriptionBySerialResponse, error) {
+	response, err := client.apiClient.PostStartSubscriptionBySerialWithResponse(ctx, serial, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PostStopSubscriptionBySerial API call.
 func (client *Client) PostStopSubscriptionBySerial(ctx context.Context, serial string) (*api.PostStopSubscriptionBySerialResponse, error) {
-	return nil, nil
+	response, err := client.postStopSubscriptionBySerial(ctx, serial)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.postStopSubscriptionBySerial(ctx, serial)
+	}
+	return response, err
 }
 
+func (client *Client) postStopSubscriptionBySerial(ctx context.Context, serial string) (*api.PostStopSubscriptionBySerialResponse, error) {
+	response, err := client.apiClient.PostStopSubscriptionBySerialWithResponse(ctx, serial, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetSubscriptionStateByUid API call.
 func (client *Client) GetSubscriptionStateByUid(ctx context.Context, uid string) (*api.GetSubscriptionStateByUidResponse, error) {
-	return nil, nil
+	response, err := client.getSubscriptionStateByUid(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getSubscriptionStateByUid(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getSubscriptionStateByUid(ctx context.Context, uid string) (*api.GetSubscriptionStateByUidResponse, error) {
+	response, err := client.apiClient.GetSubscriptionStateByUidWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetOverview API call.
 func (client *Client) GetOverview(ctx context.Context) (*api.GetOverviewResponse, error) {
 	response, err := client.getOverview(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -316,6 +522,7 @@ func (client *Client) getOverview(ctx context.Context) (*api.GetOverviewResponse
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewDevicesList API call.
 func (client *Client) GetOverviewDevicesList(ctx context.Context) (*api.GetOverviewDevicesListResponse, error) {
 	response, err := client.getOverviewDevicesList(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -332,10 +539,24 @@ func (client *Client) getOverviewDevicesList(ctx context.Context) (*api.GetOverv
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewDeviceByUID API call.
 func (client *Client) GetOverviewDeviceByUID(ctx context.Context, uid string) (*api.GetOverviewDeviceByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getOverviewDeviceByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getOverviewDeviceByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getOverviewDeviceByUID(ctx context.Context, uid string) (*api.GetOverviewDeviceByUIDResponse, error) {
+	response, err := client.apiClient.GetOverviewDeviceByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetOverviewGlobals API call.
 func (client *Client) GetOverviewGlobals(ctx context.Context) (*api.GetOverviewGlobalsResponse, error) {
 	response, err := client.getOverviewGlobals(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -352,6 +573,7 @@ func (client *Client) getOverviewGlobals(ctx context.Context) (*api.GetOverviewG
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewGroupsList API call.
 func (client *Client) GetOverviewGroupsList(ctx context.Context) (*api.GetOverviewGroupsListResponse, error) {
 	response, err := client.getOverviewGroupsList(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -368,10 +590,24 @@ func (client *Client) getOverviewGroupsList(ctx context.Context) (*api.GetOvervi
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewGroupByUID API call.
 func (client *Client) GetOverviewGroupByUID(ctx context.Context, uid string) (*api.GetOverviewGroupByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getOverviewGroupByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getOverviewGroupByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getOverviewGroupByUID(ctx context.Context, uid string) (*api.GetOverviewGroupByUIDResponse, error) {
+	response, err := client.apiClient.GetOverviewGroupByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetOverviewTemplatesList API call.
 func (client *Client) GetOverviewTemplatesList(ctx context.Context) (*api.GetOverviewTemplatesListResponse, error) {
 	response, err := client.getOverviewTemplatesList(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -388,14 +624,41 @@ func (client *Client) getOverviewTemplatesList(ctx context.Context) (*api.GetOve
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewTemplateByUID API call.
 func (client *Client) GetOverviewTemplateByUID(ctx context.Context, uid string) (*api.GetOverviewTemplateByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getOverviewTemplateByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getOverviewTemplateByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getOverviewTemplateByUID(ctx context.Context, uid string) (*api.GetOverviewTemplateByUIDResponse, error) {
+	response, err := client.apiClient.GetOverviewTemplateByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PostOverviewTemplateByUID API call.
 func (client *Client) PostOverviewTemplateByUID(ctx context.Context, uid string, body api.PostOverviewTemplateByUIDJSONRequestBody) (*api.PostOverviewTemplateByUIDResponse, error) {
-	return nil, nil
+	response, err := client.postOverviewTemplateByUID(ctx, uid, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.postOverviewTemplateByUID(ctx, uid, body)
+	}
+	return response, err
 }
 
+func (client *Client) postOverviewTemplateByUID(ctx context.Context, uid string, body api.PostOverviewTemplateByUIDJSONRequestBody) (*api.PostOverviewTemplateByUIDResponse, error) {
+	response, err := client.apiClient.PostOverviewTemplateByUIDWithResponse(ctx, uid, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, nil)
+}
+
+// GetOverviewTriggersList API call.
 func (client *Client) GetOverviewTriggersList(ctx context.Context) (*api.GetOverviewTriggersListResponse, error) {
 	response, err := client.getOverviewTriggersList(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -412,14 +675,41 @@ func (client *Client) getOverviewTriggersList(ctx context.Context) (*api.GetOver
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewTriggerByUID API call.
 func (client *Client) GetOverviewTriggerByUID(ctx context.Context, uid string) (*api.GetOverviewTriggerByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getOverviewTriggerByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getOverviewTriggerByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getOverviewTriggerByUID(ctx context.Context, uid string) (*api.GetOverviewTriggerByUIDResponse, error) {
+	response, err := client.apiClient.GetOverviewTriggerByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PutOverviewTriggerByUID API call.
 func (client *Client) PutOverviewTriggerByUID(ctx context.Context, uid string, body api.PutOverviewTriggerByUIDJSONRequestBody) (*api.PutOverviewTriggerByUIDResponse, error) {
-	return nil, nil
+	response, err := client.putOverviewTriggerByUID(ctx, uid, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.putOverviewTriggerByUID(ctx, uid, body)
+	}
+	return response, err
 }
 
+func (client *Client) putOverviewTriggerByUID(ctx context.Context, uid string, body api.PutOverviewTriggerByUIDJSONRequestBody) (*api.PutOverviewTriggerByUIDResponse, error) {
+	response, err := client.apiClient.PutOverviewTriggerByUIDWithResponse(ctx, uid, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// GetOverviewUnitsList API call.
 func (client *Client) GetOverviewUnitsList(ctx context.Context) (*api.GetOverviewUnitsListResponse, error) {
 	response, err := client.getOverviewUnitsList(ctx)
 	if client.retryAfterAuthenticate(err) {
@@ -436,12 +726,38 @@ func (client *Client) getOverviewUnitsList(ctx context.Context) (*api.GetOvervie
 	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
+// GetOverviewUnitByUID API call.
 func (client *Client) GetOverviewUnitByUID(ctx context.Context, uid string) (*api.GetOverviewUnitByUIDResponse, error) {
-	return nil, nil
+	response, err := client.getOverviewUnitByUID(ctx, uid)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.getOverviewUnitByUID(ctx, uid)
+	}
+	return response, err
 }
 
+func (client *Client) getOverviewUnitByUID(ctx context.Context, uid string) (*api.GetOverviewUnitByUIDResponse, error) {
+	response, err := client.apiClient.GetOverviewUnitByUIDWithResponse(ctx, uid, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+}
+
+// PutOverviewUnitByUID API call.
 func (client *Client) PutOverviewUnitByUID(ctx context.Context, uid string, body api.PutOverviewUnitByUIDJSONRequestBody) (*api.PutOverviewUnitByUIDResponse, error) {
-	return nil, nil
+	response, err := client.putOverviewUnitByUID(ctx, uid, body)
+	if client.retryAfterAuthenticate(err) {
+		response, err = client.putOverviewUnitByUID(ctx, uid, body)
+	}
+	return response, err
+}
+
+func (client *Client) putOverviewUnitByUID(ctx context.Context, uid string, body api.PutOverviewUnitByUIDJSONRequestBody) (*api.PutOverviewUnitByUIDResponse, error) {
+	response, err := client.apiClient.PutOverviewUnitByUIDWithResponse(ctx, uid, body, client.authenticateRequest)
+	if err != nil {
+		return nil, client.wrapSystemError(err)
+	}
+	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
 }
 
 func (client *Client) authenticateRequest(ctx context.Context, request *http.Request) error {

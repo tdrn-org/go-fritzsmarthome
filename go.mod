@@ -3,7 +3,7 @@ module github.com/tdrn-org/go-fritzsmarthome
 go 1.26
 
 require (
-	github.com/oapi-codegen/runtime v1.2.0
+	github.com/oapi-codegen/runtime v1.3.0
 	github.com/stretchr/testify v1.11.1
 )
 

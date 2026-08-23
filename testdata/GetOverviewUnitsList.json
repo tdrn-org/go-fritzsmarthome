@@ -1,1 +1,51 @@
-[]
+[
+    {
+      "UID": "16000 0039609-1",
+      "ain": "16000 0039609-1",
+      "deviceUid": "16000 0039609",
+      "groupUid": "",
+      "icons": [],
+      "interfaces": {
+        "multimeterInterface": {
+          "energy": 323162,
+          "energyKeyFigures": {
+            "co2emmissions": 550,
+            "electricityRate": 25
+          },
+          "power": 196090,
+          "state": "valid"
+        },
+        "smartmeterInterface": {
+          "smartmeterState": [],
+          "state": "valid"
+        }
+      },
+      "isConnected": true,
+      "isGroupUnit": false,
+      "name": "Name#1",
+      "parentUid": "16000 0039609",
+      "unitType": "avmMeter"
+    },
+    {
+      "UID": "Z001788010D08385C0B",
+      "ain": "Z001788010D08385C0B",
+      "deviceUid": "Z001788010D08385C",
+      "groupUid": "",
+      "icons": [],
+      "interfaces": {
+        "levelControlInterface": {
+          "level": 100,
+          "state": "valid"
+        },
+        "onOffInterface": {
+          "active": true,
+          "state": "valid"
+        }
+      },
+      "isConnected": true,
+      "isGroupUnit": false,
+      "name": "Name#2",
+      "parentUid": "Z001788010D08385C",
+      "unitType": "dimmableLight"
+    }
+  ]

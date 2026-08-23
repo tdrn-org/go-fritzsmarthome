@@ -4,13 +4,13 @@
       "isDectAvailable": true,
       "isSmarthomeMaster": true,
       "isZigbeeAvailable": false,
-      "serial": "1234567890AB"
+      "serial": "DC396F3ABC43"
     },
     {
       "activeSubscriptionUid": "",
       "isDectAvailable": true,
       "isSmarthomeMaster": false,
       "isZigbeeAvailable": true,
-      "serial": "BA0987654321"
+      "serial": "D424DDA357BF"
     }
   ]

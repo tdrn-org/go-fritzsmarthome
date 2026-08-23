@@ -1,5 +1,8 @@
 {
     "applyTypes": [
+      "relayManual",
+      "relayAutomatic",
+      "level",
       "tamControl",
       "guestWifi",
       "mainWifi",
@@ -10,6 +13,8 @@
     "blindLevelUnitUids": [],
     "colorUnitUids": [],
     "interfaces": [
+      "onOffInterface",
+      "timer",
       "telephoneAnsweringMachineInterface",
       "guestWifiInterface",
       "mainWifiInterface",
@@ -17,8 +22,12 @@
       "httpRequestInterface",
       "notificationInterface"
     ],
-    "lampLevelUnitUids": [],
-    "onOffUnitUids": [],
+    "lampLevelUnitUids": [
+      "Z001788010D08385C0B"
+    ],
+    "onOffUnitUids": [
+      "Z001788010D08385C0B"
+    ],
     "telephoneAnsweringMachineUids": [
       "TAM0"
     ],

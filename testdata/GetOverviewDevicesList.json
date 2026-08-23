@@ -1,1 +1,73 @@
-[]
+[
+    {
+      "UID": "16000 0039609",
+      "ain": "16000 0039609",
+      "batteryState": "known",
+      "batteryValue": 100,
+      "firmwareVersion": "03.76",
+      "hardwareModelId": "0x6000E",
+      "icons": [],
+      "isBatteryLow": false,
+      "isBatteryPowered": true,
+      "isConnected": true,
+      "isDeviceDeletable": true,
+      "isDeviceSubscribedLocally": true,
+      "isExternallyPowered": false,
+      "isUpdateAvailable": false,
+      "isZigbeeDevice": false,
+      "manufacturer": "AVM",
+      "name": "Name#1",
+      "productCategory": "sensor",
+      "productName": "FRITZ!Smart Energy 250",
+      "pushMail": {
+        "enabled": false,
+        "recipient": "",
+        "units": [
+          {
+            "UID": "16000 0039609-1",
+            "intervalDriven": "disabled",
+            "unitUid": "16000 0039609-1"
+          }
+        ]
+      },
+      "radioBaseSerial": "DC396F3ABC43",
+      "unitUids": [
+        "16000 0039609-1"
+      ]
+    },
+    {
+      "UID": "Z001788010D08385C",
+      "ain": "Z001788010D08385C",
+      "batteryState": "unknown",
+      "firmwareVersion": "1.93.7",
+      "hardwareModelId": "0xA0D00000",
+      "icons": [],
+      "isBatteryPowered": false,
+      "isConnected": true,
+      "isDeviceDeletable": true,
+      "isDeviceSubscribedLocally": false,
+      "isExternallyPowered": false,
+      "isUpdateAvailable": false,
+      "isZigbeeDevice": true,
+      "lastConnectionTime": 1787464806,
+      "manufacturer": "PHILIPS",
+      "name": "Name#2",
+      "productCategory": "lamp",
+      "productName": "Zigbee",
+      "pushMail": {
+        "enabled": false,
+        "recipient": "",
+        "units": [
+          {
+            "UID": "Z001788010D08385C0B",
+            "eventDrivenEnabled": false,
+            "unitUid": "Z001788010D08385C0B"
+          }
+        ]
+      },
+      "radioBaseSerial": "D424DDA357BF",
+      "unitUids": [
+        "Z001788010D08385C0B"
+      ]
+    }
+  ]

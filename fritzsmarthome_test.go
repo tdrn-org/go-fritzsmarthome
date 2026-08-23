@@ -18,10 +18,12 @@ package fritzsmarthome_test
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -32,6 +34,7 @@ import (
 type RecordConfig struct {
 	Enabled    bool   `json:"enabled"`
 	ConnectURL string `json:"connect_url"`
+	Record     bool   `json:"record"`
 }
 
 func TestClient(t *testing.T) {
@@ -46,7 +49,7 @@ func TestClient(t *testing.T) {
 		if config.Enabled {
 			connectURL, err = url.Parse(config.ConnectURL)
 			require.NoError(t, err)
-			record = true
+			record = config.Record
 		}
 	}
 	if connectURL == nil {
@@ -85,6 +88,8 @@ func TestClient(t *testing.T) {
 	t.Run("GetOverviewUnitsList", func(t *testing.T) {
 		testGetOverviewUnitsList(t, client, record)
 	})
+
+	masqueradeResponses(t, record)
 }
 
 func testGetConfigurationTemplateCapabilities(t *testing.T, client *fritzsmarthome.Client, record bool) {
@@ -155,11 +160,100 @@ func recordResponse(t *testing.T, response any, record bool) {
 		return
 	}
 	dataFile := filepath.Join("testdata", filepath.Base(t.Name())+".json")
-	_, err := os.Stat(dataFile)
-	if errors.Is(err, os.ErrNotExist) {
-		data, err := json.MarshalIndent(response, "  ", "  ")
+	data, err := json.MarshalIndent(response, "  ", "  ")
+	require.NoError(t, err)
+	err = os.WriteFile(dataFile, data, 0660)
+	require.NoError(t, err)
+}
+
+func masqueradeResponses(t *testing.T, record bool) {
+	if !record {
+		return
+	}
+	dirEntries, err := os.ReadDir("testdata")
+	require.NoError(t, err)
+	m := &masquerader{
+		nameAliases: make(map[string]string),
+	}
+	for _, dirEntry := range dirEntries {
+		if !dirEntry.Type().IsRegular() || !strings.HasSuffix(dirEntry.Name(), ".json") {
+			continue
+		}
+		dataFile := filepath.Join("testdata", dirEntry.Name())
+		dataBytes, err := os.ReadFile(dataFile)
 		require.NoError(t, err)
-		err = os.WriteFile(dataFile, data, 0660)
+		var data any
+		err = json.Unmarshal(dataBytes, &data)
+		require.NoError(t, err)
+		m.Masquerade(&data)
+		dataBytes, err = json.MarshalIndent(data, "  ", "  ")
+		require.NoError(t, err)
+		err = os.WriteFile(dataFile, dataBytes, 0660)
 		require.NoError(t, err)
 	}
+}
+
+type masquerader struct {
+	nameAliases map[string]string
+}
+
+func (m *masquerader) Masquerade(data any) {
+	m.masquerade(reflect.ValueOf(data))
+}
+
+func (m *masquerader) masquerade(v reflect.Value) {
+	switch v.Kind() {
+	case reflect.Pointer:
+		if !v.IsNil() {
+			m.masquerade(v.Elem())
+		}
+	case reflect.Interface:
+		if !v.IsNil() {
+			m.masquerade(v.Elem())
+		}
+	case reflect.Map:
+		m.masqueradeMap(v)
+	case reflect.Slice:
+		m.masqueradeSliceOrArray(v)
+	}
+}
+
+func (m *masquerader) masqueradeMap(mapValue reflect.Value) {
+	keyValues := mapValue.MapKeys()
+	for _, keyValue := range keyValues {
+		v := mapValue.MapIndex(keyValue)
+		if v.Kind() == reflect.Interface && !v.IsNil() {
+			v = v.Elem()
+		}
+		switch v.Kind() {
+		case reflect.String:
+			m.masqueradeMapIndex(mapValue, keyValue, v)
+		default:
+			m.masquerade(v)
+		}
+	}
+}
+
+func (m *masquerader) masqueradeMapIndex(mapValue reflect.Value, keyValue reflect.Value, v reflect.Value) {
+	switch keyValue.String() {
+	case "name":
+		mapValue.SetMapIndex(keyValue, reflect.ValueOf(m.nameAlias(v.String())))
+	}
+}
+
+func (m *masquerader) masqueradeSliceOrArray(p reflect.Value) {
+	arrayLen := p.Len()
+	for arrayIndex := range arrayLen {
+		arrayElement := p.Index(arrayIndex)
+		m.masquerade(arrayElement)
+	}
+}
+
+func (m *masquerader) nameAlias(name string) string {
+	alias := m.nameAliases[name]
+	if alias == "" {
+		alias = fmt.Sprintf("Name#%d", len(m.nameAliases)+1)
+		m.nameAliases[name] = alias
+	}
+	return alias
 }

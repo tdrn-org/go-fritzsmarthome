@@ -236,7 +236,7 @@ func (m *masquerader) masqueradeMap(mapValue reflect.Value) {
 	}
 }
 
-func (m *masquerader) masqueradeMapIndex(mapValue reflect.Value, keyValue reflect.Value, v reflect.Value) {
+func (m *masquerader) masqueradeMapIndex(mapValue, keyValue, v reflect.Value) {
 	switch keyValue.String() {
 	case "name":
 		mapValue.SetMapIndex(keyValue, reflect.ValueOf(m.nameAlias(v.String())))

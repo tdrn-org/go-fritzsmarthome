@@ -1,0 +1,14 @@
+[
+    {
+      "UID": "grp3abc43-4296B3DF8",
+      "ain": "grp3abc43-4296B3DF8",
+      "groupCategory": "switchable",
+      "icons": [],
+      "isConnected": true,
+      "memberUnitUids": [
+        "Z001788010D08385C0B"
+      ],
+      "name": "Name#3",
+      "unitUid": "grp3abc43-4296B3DF8"
+    }
+  ]

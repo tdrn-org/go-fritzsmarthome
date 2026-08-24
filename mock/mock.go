@@ -50,6 +50,7 @@ const mockAuthorization string = "AVM-SID " + mockSessionID
 
 // Server represents a mock instance.
 type Server struct {
+	mockDir      string
 	httpListener net.Listener
 	connectURL   *url.URL
 	logger       *slog.Logger
@@ -59,9 +60,12 @@ type Server struct {
 
 // Start starts and returns a new mock instance.
 //
+// The given directory contains the response json files
+// to send back to a client. The mock file name must
+// match the mocked function name.
 // Start panics in case of an error. The returned server
 // is listening on localhost using a dynamic port.
-func Start() *Server {
+func Start(mockDir string) *Server {
 	httpListener, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		log.Fatal(err)
@@ -73,6 +77,7 @@ func Start() *Server {
 		log.Fatal(err)
 	}
 	server := &Server{
+		mockDir:      mockDir,
 		httpListener: httpListener,
 		connectURL:   connectURL,
 		logger:       logger,
@@ -207,127 +212,169 @@ func (s *Server) handleLoginResponse(w http.ResponseWriter, _ *http.Request) {
 // Delete device by UID
 // (DELETE /smarthome/configuration/devices/{UID})
 func (s *Server) DeleteConfigurationDeviceByUID(ctx context.Context, request api.DeleteConfigurationDeviceByUIDRequestObject) (api.DeleteConfigurationDeviceByUIDResponseObject, error) {
-	return nil, nil
+	response := api.DeleteConfigurationDeviceByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get device configuration by UID
 // (GET /smarthome/configuration/devices/{UID})
 func (s *Server) GetConfigurationDeviceByUID(ctx context.Context, request api.GetConfigurationDeviceByUIDRequestObject) (api.GetConfigurationDeviceByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetConfigurationDeviceByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Configure and control device by UID
 // (PUT /smarthome/configuration/devices/{UID})
 func (s *Server) PutConfigurationDeviceByUID(ctx context.Context, request api.PutConfigurationDeviceByUIDRequestObject) (api.PutConfigurationDeviceByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PutConfigurationDeviceByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Create new group
 // (POST /smarthome/configuration/groups)
 func (s *Server) PostConfigurationGroupByName(ctx context.Context, request api.PostConfigurationGroupByNameRequestObject) (api.PostConfigurationGroupByNameResponseObject, error) {
-	return nil, nil
+	response := api.PostConfigurationGroupByName200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Delete group by UID
 // (DELETE /smarthome/configuration/groups/{UID})
 func (s *Server) DeleteConfigurationGroupByUID(ctx context.Context, request api.DeleteConfigurationGroupByUIDRequestObject) (api.DeleteConfigurationGroupByUIDResponseObject, error) {
-	return nil, nil
+	response := api.DeleteConfigurationGroupByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get group configuration by UID
 // (GET /smarthome/configuration/groups/{UID})
 func (s *Server) GetConfigurationGroupByUID(ctx context.Context, request api.GetConfigurationGroupByUIDRequestObject) (api.GetConfigurationGroupByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetConfigurationGroupByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Configure and control group by UID
 // (PUT /smarthome/configuration/groups/{UID})
 func (s *Server) PutConfigurationGroupByUID(ctx context.Context, request api.PutConfigurationGroupByUIDRequestObject) (api.PutConfigurationGroupByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PutConfigurationGroupByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get possible template configuration capabilities
 // (GET /smarthome/configuration/templateCapabilities)
 func (s *Server) GetConfigurationTemplateCapabilities(ctx context.Context, request api.GetConfigurationTemplateCapabilitiesRequestObject) (api.GetConfigurationTemplateCapabilitiesResponseObject, error) {
-	return nil, nil
+	response := api.GetConfigurationTemplateCapabilities200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Create new template
 // (POST /smarthome/configuration/templates)
 func (s *Server) PostConfigurationTemplateByName(ctx context.Context, request api.PostConfigurationTemplateByNameRequestObject) (api.PostConfigurationTemplateByNameResponseObject, error) {
-	return nil, nil
+	response := api.PostConfigurationTemplateByName200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Delete template by UID
 // (DELETE /smarthome/configuration/templates/{UID})
 func (s *Server) DeleteConfigurationTemplateByUID(ctx context.Context, request api.DeleteConfigurationTemplateByUIDRequestObject) (api.DeleteConfigurationTemplateByUIDResponseObject, error) {
-	return nil, nil
+	response := api.DeleteConfigurationTemplateByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get template configuration by UID
 // (GET /smarthome/configuration/templates/{UID})
 func (s *Server) GetConfigurationTemplateByUID(ctx context.Context, request api.GetConfigurationTemplateByUIDRequestObject) (api.GetConfigurationTemplateByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetConfigurationTemplateByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Configure and control template by UID
 // (PUT /smarthome/configuration/templates/{UID})
 func (s *Server) PutConfigurationTemplateByUID(ctx context.Context, request api.PutConfigurationTemplateByUIDRequestObject) (api.PutConfigurationTemplateByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PutConfigurationTemplateByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get unit configuration by UID
 // (GET /smarthome/configuration/units/{UID})
 func (s *Server) GetConfigurationUnitByUID(ctx context.Context, request api.GetConfigurationUnitByUIDRequestObject) (api.GetConfigurationUnitByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetConfigurationUnitByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Configure and control unit by UID
 // (PUT /smarthome/configuration/units/{UID})
 func (s *Server) PutConfigurationUnitByUID(ctx context.Context, request api.PutConfigurationUnitByUIDRequestObject) (api.PutConfigurationUnitByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PutConfigurationUnitByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Set installCode on zigbee radioBase
 // (POST /smarthome/connect/installCode/{serial})
 func (s *Server) PostInstallCodeBySerial(ctx context.Context, request api.PostInstallCodeBySerialRequestObject) (api.PostInstallCodeBySerialResponseObject, error) {
-	return nil, nil
+	response := api.PostInstallCodeBySerial200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get list of radioBases
 // (GET /smarthome/connect/radioBases)
 func (s *Server) GetRadioBasesList(ctx context.Context, request api.GetRadioBasesListRequestObject) (api.GetRadioBasesListResponseObject, error) {
-	return nil, nil
+	response := api.GetRadioBasesList200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get radioBase by Serial
 // (GET /smarthome/connect/radioBases/{serial})
 func (s *Server) GetRadioBaseBySerial(ctx context.Context, request api.GetRadioBaseBySerialRequestObject) (api.GetRadioBaseBySerialResponseObject, error) {
-	return nil, nil
+	response := api.GetRadioBaseBySerial200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Set resetCode on zigbee radioBase
 // (POST /smarthome/connect/resetCode/{serial})
 func (s *Server) PostResetCodeBySerial(ctx context.Context, request api.PostResetCodeBySerialRequestObject) (api.PostResetCodeBySerialResponseObject, error) {
-	return nil, nil
+	response := api.PostResetCodeBySerial200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Start Subscription on radioBase by Serial
 // (POST /smarthome/connect/startSubscription/{serial})
 func (s *Server) PostStartSubscriptionBySerial(ctx context.Context, request api.PostStartSubscriptionBySerialRequestObject) (api.PostStartSubscriptionBySerialResponseObject, error) {
-	return nil, nil
+	response := api.PostStartSubscriptionBySerial200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Stop Subscription on radioBase by Serial
 // (POST /smarthome/connect/stopSubscription/{serial})
 func (s *Server) PostStopSubscriptionBySerial(ctx context.Context, request api.PostStopSubscriptionBySerialRequestObject) (api.PostStopSubscriptionBySerialResponseObject, error) {
-	return nil, nil
+	response := api.PostStopSubscriptionBySerial200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get subscription state by UID
 // (GET /smarthome/connect/subscriptionState/{UID})
 func (s *Server) GetSubscriptionStateByUid(ctx context.Context, request api.GetSubscriptionStateByUidRequestObject) (api.GetSubscriptionStateByUidResponseObject, error) {
-	return nil, nil
+	response := api.GetSubscriptionStateByUid200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get all overview infos and lists
@@ -349,7 +396,9 @@ func (s *Server) GetOverviewDevicesList(ctx context.Context, request api.GetOver
 // Get device by UID
 // (GET /smarthome/overview/devices/{UID})
 func (s *Server) GetOverviewDeviceByUID(ctx context.Context, request api.GetOverviewDeviceByUIDRequestObject) (api.GetOverviewDeviceByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewDeviceByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get smart home global values
@@ -371,61 +420,81 @@ func (s *Server) GetOverviewGroupsList(ctx context.Context, request api.GetOverv
 // Get group by UID
 // (GET /smarthome/overview/groups/{UID})
 func (s *Server) GetOverviewGroupByUID(ctx context.Context, request api.GetOverviewGroupByUIDRequestObject) (api.GetOverviewGroupByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewGroupByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get list of templates
 // (GET /smarthome/overview/templates)
 func (s *Server) GetOverviewTemplatesList(ctx context.Context, request api.GetOverviewTemplatesListRequestObject) (api.GetOverviewTemplatesListResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewTemplatesList200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get template by UID
 // (GET /smarthome/overview/templates/{UID})
 func (s *Server) GetOverviewTemplateByUID(ctx context.Context, request api.GetOverviewTemplateByUIDRequestObject) (api.GetOverviewTemplateByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewTemplateByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Applies a template by UID
 // (POST /smarthome/overview/templates/{UID})
 func (s *Server) PostOverviewTemplateByUID(ctx context.Context, request api.PostOverviewTemplateByUIDRequestObject) (api.PostOverviewTemplateByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PostOverviewTemplateByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get list of triggers
 // (GET /smarthome/overview/triggers)
 func (s *Server) GetOverviewTriggersList(ctx context.Context, request api.GetOverviewTriggersListRequestObject) (api.GetOverviewTriggersListResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewTriggersList200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get trigger by UID
 // (GET /smarthome/overview/triggers/{UID})
 func (s *Server) GetOverviewTriggerByUID(ctx context.Context, request api.GetOverviewTriggerByUIDRequestObject) (api.GetOverviewTriggerByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewTriggerByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Activate or deactivate trigger by UID
 // (PUT /smarthome/overview/triggers/{UID})
 func (s *Server) PutOverviewTriggerByUID(ctx context.Context, request api.PutOverviewTriggerByUIDRequestObject) (api.PutOverviewTriggerByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PutOverviewTriggerByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get list of units
 // (GET /smarthome/overview/units)
 func (s *Server) GetOverviewUnitsList(ctx context.Context, request api.GetOverviewUnitsListRequestObject) (api.GetOverviewUnitsListResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewUnitsList200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Get unit by UID
 // (GET /smarthome/overview/units/{UID})
 func (s *Server) GetOverviewUnitByUID(ctx context.Context, request api.GetOverviewUnitByUIDRequestObject) (api.GetOverviewUnitByUIDResponseObject, error) {
-	return nil, nil
+	response := api.GetOverviewUnitByUID200JSONResponse{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 // Control interfaces for unit by UID
 // (PUT /smarthome/overview/units/{UID})
 func (s *Server) PutOverviewUnitByUID(ctx context.Context, request api.PutOverviewUnitByUIDRequestObject) (api.PutOverviewUnitByUIDResponseObject, error) {
-	return nil, nil
+	response := api.PutOverviewUnitByUID200Response{}
+	err := s.readResponse(&response)
+	return response, err
 }
 
 func (s *Server) readResponse(response any) error {
@@ -433,10 +502,10 @@ func (s *Server) readResponse(response any) error {
 	caller := runtime.FuncForPC(pc)
 	callerName := caller.Name()
 	operationID := callerName[strings.LastIndex(callerName, ".")+1:]
-	responseFile := filepath.Join("testdata", operationID+".json")
+	responseFile := filepath.Join(s.mockDir, operationID+".json")
 	responseData, err := os.ReadFile(responseFile)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil
+		return fmt.Errorf("no mock data for %s", operationID)
 	}
 	if err != nil {
 		return err

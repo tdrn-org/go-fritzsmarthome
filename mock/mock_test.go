@@ -24,7 +24,7 @@ import (
 )
 
 func TestStartStop(t *testing.T) {
-	serverMock := mock.Start()
+	serverMock := mock.Start("testdata")
 	defer serverMock.Stop(t.Context())
 
 	connectURL := serverMock.ConnectURL()

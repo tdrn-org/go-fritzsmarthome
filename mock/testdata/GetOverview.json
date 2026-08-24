@@ -54,7 +54,7 @@
         "manufacturer": "PHILIPS",
         "name": "Name#2",
         "productCategory": "lamp",
-        "productName": "Zigbee",
+        "productName": "Signify Netherlands B.V. LWA028",
         "pushMail": {
           "enabled": false,
           "recipient": "",
@@ -313,7 +313,20 @@
         "longitude": 13
       }
     },
-    "groups": [],
+    "groups": [
+      {
+        "UID": "grp3abc43-4296B3DF8",
+        "ain": "grp3abc43-4296B3DF8",
+        "groupCategory": "switchable",
+        "icons": [],
+        "isConnected": true,
+        "memberUnitUids": [
+          "Z001788010D08385C0B"
+        ],
+        "name": "Name#3",
+        "unitUid": "grp3abc43-4296B3DF8"
+      }
+    ],
     "templates": [],
     "triggers": [],
     "units": [
@@ -325,12 +338,12 @@
         "icons": [],
         "interfaces": {
           "multimeterInterface": {
-            "energy": 323162,
+            "energy": 325528,
             "energyKeyFigures": {
               "co2emmissions": 550,
               "electricityRate": 25
             },
-            "power": 196090,
+            "power": 289130,
             "state": "valid"
           },
           "smartmeterInterface": {
@@ -348,7 +361,7 @@
         "UID": "Z001788010D08385C0B",
         "ain": "Z001788010D08385C0B",
         "deviceUid": "Z001788010D08385C",
-        "groupUid": "",
+        "groupUid": "grp3abc43-4296B3DF8",
         "icons": [],
         "interfaces": {
           "levelControlInterface": {
@@ -356,7 +369,7 @@
             "state": "valid"
           },
           "onOffInterface": {
-            "active": true,
+            "active": false,
             "state": "valid"
           }
         },
@@ -365,6 +378,25 @@
         "name": "Name#2",
         "parentUid": "Z001788010D08385C",
         "unitType": "dimmableLight"
+      },
+      {
+        "UID": "grp3abc43-4296B3DF8",
+        "ain": "grp3abc43-4296B3DF8",
+        "icons": [],
+        "interfaces": {
+          "levelControlInterface": {
+            "state": "unknown"
+          },
+          "onOffInterface": {
+            "active": false,
+            "state": "valid"
+          }
+        },
+        "isConnected": true,
+        "isGroupUnit": true,
+        "name": "Name#3",
+        "parentUid": "grp3abc43-4296B3DF8",
+        "unitType": "switchableGroup"
       }
     ]
   }

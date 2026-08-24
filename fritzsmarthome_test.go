@@ -31,6 +31,8 @@ import (
 	"github.com/tdrn-org/go-fritzsmarthome/mock"
 )
 
+const MockDir string = "mock/testdata"
+
 type RecordConfig struct {
 	Enabled    bool   `json:"enabled"`
 	ConnectURL string `json:"connect_url"`
@@ -53,7 +55,7 @@ func TestClient(t *testing.T) {
 		}
 	}
 	if connectURL == nil {
-		serverMock := mock.Start()
+		serverMock := mock.Start(MockDir)
 		defer serverMock.Stop(t.Context())
 		connectURL = serverMock.ConnectURL()
 	}
@@ -159,7 +161,7 @@ func recordResponse(t *testing.T, response any, record bool) {
 	if !record {
 		return
 	}
-	dataFile := filepath.Join("testdata", filepath.Base(t.Name())+".json")
+	dataFile := filepath.Join(MockDir, filepath.Base(t.Name())+".json")
 	data, err := json.MarshalIndent(response, "  ", "  ")
 	require.NoError(t, err)
 	err = os.WriteFile(dataFile, data, 0660)
@@ -170,7 +172,7 @@ func masqueradeResponses(t *testing.T, record bool) {
 	if !record {
 		return
 	}
-	dirEntries, err := os.ReadDir("testdata")
+	dirEntries, err := os.ReadDir(MockDir)
 	require.NoError(t, err)
 	m := &masquerader{
 		nameAliases: make(map[string]string),

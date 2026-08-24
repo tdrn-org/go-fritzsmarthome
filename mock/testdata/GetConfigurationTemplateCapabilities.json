@@ -3,6 +3,7 @@
       "relayManual",
       "relayAutomatic",
       "level",
+      "switchMaster",
       "tamControl",
       "guestWifi",
       "mainWifi",
@@ -15,6 +16,7 @@
     "interfaces": [
       "onOffInterface",
       "timer",
+      "groupInterface",
       "telephoneAnsweringMachineInterface",
       "guestWifiInterface",
       "mainWifiInterface",
@@ -23,10 +25,12 @@
       "notificationInterface"
     ],
     "lampLevelUnitUids": [
-      "Z001788010D08385C0B"
+      "Z001788010D08385C0B",
+      "grp3abc43-4296B3DF8"
     ],
     "onOffUnitUids": [
-      "Z001788010D08385C0B"
+      "Z001788010D08385C0B",
+      "grp3abc43-4296B3DF8"
     ],
     "telephoneAnsweringMachineUids": [
       "TAM0"

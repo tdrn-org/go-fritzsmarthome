@@ -1,10 +1,10 @@
-## Go module for FRITZ! Smart-Home-API access
+## Go module for FRITZ! Smart Home REST API access
 [![GoDoc](https://godoc.org/github.com/tdrn-org/go-fritzsmarthome?status.svg)](https://godoc.org/github.com/tdrn-org/go-fritzsmarthome)
 [![Build](https://github.com/tdrn-org/go-fritzsmarthome/actions/workflows/build.yml/badge.svg)](https://github.com/tdrn-org/go-fritzsmarthome/actions/workflows/build.yml)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=tdrn-org_go-fritzsmarthome&metric=coverage)](https://sonarcloud.io/summary/new_code?id=tdrn-org_go-fritzsmarthome)
 
-### FRITZ! Smart-Home-API
-The [FRITZ! Smart Home system](https://fritz.com/en/collections/smart-home) provides a [REST API]https://fritz.com/en/pages/interfaces) to access Smart Home capable devices to evaluate and control the connected devices. This library provides the Go wrapper for this API. It is based on the provided [OpenAPI specification](https://fritz.com/en/pages/interfaces).
+### FRITZ! Smart Home REST API
+The [FRITZ! Smart Home system](https://fritz.com/en/collections/smart-home) provides a [REST API](https://fritz.com/en/pages/interfaces) to access Smart Home capable devices to evaluate and control the connected devices. This library provides the Go wrapper for this API. It is based on the provided [OpenAPI specification](https://fritz.support/resources/SmarthomeRestApiFRITZOS82.html).
 
 ### Versioning
 The package main version (major.minor) matches the version of the OpenAPI specification the package version is based on.

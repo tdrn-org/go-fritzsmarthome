@@ -79,6 +79,28 @@ func TestInvalidAPI(t *testing.T) {
 	require.Nil(t, response.JSON200)
 }
 
+func TestUnexpectedResponse(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/v0/smarthome/overview", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	serverURL, err := url.Parse(server.URL)
+	require.NoError(t, err)
+
+	client, err := fritzsmarthome.NewClient(serverURL)
+	require.NoError(t, err)
+
+	response, err := client.GetOverview(t.Context())
+	require.ErrorIs(t, err, fritzsmarthome.ErrAPIFailure)
+	require.NotNil(t, response)
+	require.NotNil(t, response.JSONDefault)
+	require.Nil(t, response.JSON200)
+}
+
 func TestNotAuthorized(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v0/smarthome/overview", func(w http.ResponseWriter, r *http.Request) {

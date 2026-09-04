@@ -793,7 +793,6 @@ func (client *Client) checkAPIResponse(httpResponse *http.Response, apiResponse 
 	}
 	if httpResponse.StatusCode != http.StatusOK {
 		return fmt.Errorf("%w %s (status: %s)", ErrAPIFailure, client.operationID(), httpResponse.Status)
-
 	}
 	return nil
 }

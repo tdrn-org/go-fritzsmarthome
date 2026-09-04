@@ -19,6 +19,8 @@ package fritzsmarthome_test
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -28,6 +30,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/tdrn-org/go-fritzsmarthome"
+	"github.com/tdrn-org/go-fritzsmarthome/api"
 	"github.com/tdrn-org/go-fritzsmarthome/mock"
 )
 
@@ -37,6 +40,77 @@ type RecordConfig struct {
 	Enabled    bool   `json:"enabled"`
 	ConnectURL string `json:"connect_url"`
 	Record     bool   `json:"record"`
+}
+
+func TestNoAPI(t *testing.T) {
+	mux := http.NewServeMux()
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	serverURL, err := url.Parse(server.URL)
+	require.NoError(t, err)
+
+	client, err := fritzsmarthome.NewClient(serverURL)
+	require.NoError(t, err)
+
+	response, err := client.GetOverview(t.Context())
+	require.ErrorIs(t, err, fritzsmarthome.ErrAPIFailure)
+	require.NotNil(t, response)
+	require.Nil(t, response.JSONDefault)
+	require.Nil(t, response.JSON200)
+}
+
+func TestInvalidAPI(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/v0/smarthome/overview", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Ok"))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	serverURL, err := url.Parse(server.URL)
+	require.NoError(t, err)
+
+	client, err := fritzsmarthome.NewClient(serverURL)
+	require.NoError(t, err)
+
+	response, err := client.GetOverview(t.Context())
+	require.ErrorIs(t, err, fritzsmarthome.ErrAPIFailure)
+	require.NotNil(t, response)
+	require.Nil(t, response.JSONDefault)
+	require.Nil(t, response.JSON200)
+}
+
+func TestInvalidLogin(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/v0/smarthome/overview", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		errors := api.ErrorList{
+			{
+				Code: 3001,
+			},
+		}
+		response := &api.ErrorResponse{
+			Errors: &errors,
+		}
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	serverURL, err := url.Parse(server.URL)
+	require.NoError(t, err)
+
+	client, err := fritzsmarthome.NewClient(serverURL)
+	require.NoError(t, err)
+
+	response, err := client.GetOverview(t.Context())
+	require.ErrorIs(t, err, fritzsmarthome.ErrAPIFailure)
+	require.NotNil(t, response)
+	require.NotNil(t, response.JSONDefault)
+	require.Nil(t, response.JSON200)
 }
 
 func TestClient(t *testing.T) {

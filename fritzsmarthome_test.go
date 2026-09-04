@@ -106,11 +106,9 @@ func TestNotAuthorized(t *testing.T) {
 	mux.HandleFunc("/api/v0/smarthome/overview", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		message := "unauthorized"
 		errors := api.ErrorList{
 			{
-				Code:    3001,
-				Message: &message,
+				Code: 3001,
 			},
 		}
 		response := &api.ErrorResponse{

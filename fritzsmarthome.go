@@ -29,10 +29,12 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/tdrn-org/go-fritzsmarthome/api"
 )
@@ -162,7 +164,7 @@ func (client *Client) deleteConfigurationDeviceByUID(ctx context.Context, uid st
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetConfigurationDeviceByUID API call.
@@ -179,7 +181,7 @@ func (client *Client) getConfigurationDeviceByUID(ctx context.Context, uid strin
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PutConfigurationDeviceByUID API call.
@@ -196,7 +198,7 @@ func (client *Client) putConfigurationDeviceByUID(ctx context.Context, uid strin
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // PostConfigurationGroupByName API call.
@@ -213,7 +215,7 @@ func (client *Client) postConfigurationGroupByName(ctx context.Context, params *
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // DeleteConfigurationGroupByUID API call.
@@ -230,7 +232,7 @@ func (client *Client) deleteConfigurationGroupByUID(ctx context.Context, uid str
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetConfigurationGroupByUID API call.
@@ -247,7 +249,7 @@ func (client *Client) getConfigurationGroupByUID(ctx context.Context, uid string
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PutConfigurationGroupByUID API call.
@@ -264,7 +266,7 @@ func (client *Client) putConfigurationGroupByUID(ctx context.Context, uid string
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetConfigurationTemplateCapabilities API call.
@@ -281,7 +283,7 @@ func (client *Client) getConfigurationTemplateCapabilities(ctx context.Context) 
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetConfigurationTemplateCapabilities API call.
@@ -298,7 +300,7 @@ func (client *Client) postConfigurationTemplateByName(ctx context.Context, param
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // DeleteConfigurationTemplateByUID API call.
@@ -315,7 +317,7 @@ func (client *Client) deleteConfigurationTemplateByUID(ctx context.Context, uid 
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // DeleteConfigurationTemplateByUID API call.
@@ -332,7 +334,7 @@ func (client *Client) getConfigurationTemplateByUID(ctx context.Context, uid str
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PutConfigurationTemplateByUID API call.
@@ -349,7 +351,7 @@ func (client *Client) putConfigurationTemplateByUID(ctx context.Context, uid str
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetConfigurationUnitByUID API call.
@@ -366,7 +368,7 @@ func (client *Client) getConfigurationUnitByUID(ctx context.Context, uid string)
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PutConfigurationUnitByUID API call.
@@ -383,7 +385,7 @@ func (client *Client) putConfigurationUnitByUID(ctx context.Context, uid string,
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // PostInstallCodeBySerial API call.
@@ -400,7 +402,7 @@ func (client *Client) postInstallCodeBySerial(ctx context.Context, serial string
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetRadioBasesList API call.
@@ -417,7 +419,7 @@ func (client *Client) getRadioBasesList(ctx context.Context) (*api.GetRadioBases
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetRadioBaseBySerial API call.
@@ -434,7 +436,7 @@ func (client *Client) getRadioBaseBySerial(ctx context.Context, serial string) (
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PostResetCodeBySerial API call.
@@ -451,7 +453,7 @@ func (client *Client) postResetCodeBySerial(ctx context.Context, serial string, 
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // PostStartSubscriptionBySerial API call.
@@ -468,7 +470,7 @@ func (client *Client) postStartSubscriptionBySerial(ctx context.Context, serial 
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PostStopSubscriptionBySerial API call.
@@ -485,7 +487,7 @@ func (client *Client) postStopSubscriptionBySerial(ctx context.Context, serial s
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetSubscriptionStateByUid API call.
@@ -502,7 +504,7 @@ func (client *Client) getSubscriptionStateByUid(ctx context.Context, uid string)
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverview API call.
@@ -519,7 +521,7 @@ func (client *Client) getOverview(ctx context.Context) (*api.GetOverviewResponse
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewDevicesList API call.
@@ -536,7 +538,7 @@ func (client *Client) getOverviewDevicesList(ctx context.Context) (*api.GetOverv
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewDeviceByUID API call.
@@ -553,7 +555,7 @@ func (client *Client) getOverviewDeviceByUID(ctx context.Context, uid string) (*
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewGlobals API call.
@@ -570,7 +572,7 @@ func (client *Client) getOverviewGlobals(ctx context.Context) (*api.GetOverviewG
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewGroupsList API call.
@@ -587,7 +589,7 @@ func (client *Client) getOverviewGroupsList(ctx context.Context) (*api.GetOvervi
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewGroupByUID API call.
@@ -604,7 +606,7 @@ func (client *Client) getOverviewGroupByUID(ctx context.Context, uid string) (*a
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewTemplatesList API call.
@@ -621,7 +623,7 @@ func (client *Client) getOverviewTemplatesList(ctx context.Context) (*api.GetOve
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewTemplateByUID API call.
@@ -638,7 +640,7 @@ func (client *Client) getOverviewTemplateByUID(ctx context.Context, uid string) 
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PostOverviewTemplateByUID API call.
@@ -672,7 +674,7 @@ func (client *Client) getOverviewTriggersList(ctx context.Context) (*api.GetOver
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewTriggerByUID API call.
@@ -689,7 +691,7 @@ func (client *Client) getOverviewTriggerByUID(ctx context.Context, uid string) (
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PutOverviewTriggerByUID API call.
@@ -706,7 +708,7 @@ func (client *Client) putOverviewTriggerByUID(ctx context.Context, uid string, b
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 // GetOverviewUnitsList API call.
@@ -723,7 +725,7 @@ func (client *Client) getOverviewUnitsList(ctx context.Context) (*api.GetOvervie
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // GetOverviewUnitByUID API call.
@@ -740,7 +742,7 @@ func (client *Client) getOverviewUnitByUID(ctx context.Context, uid string) (*ap
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponseWithBody(response.HTTPResponse, response.GetJSONDefault(), response.GetJSON200())
 }
 
 // PutOverviewUnitByUID API call.
@@ -757,7 +759,7 @@ func (client *Client) putOverviewUnitByUID(ctx context.Context, uid string, body
 	if err != nil {
 		return nil, client.wrapSystemError(err)
 	}
-	return response, client.checkAPIResponse(response.HTTPResponse, response.JSONDefault)
+	return response, client.checkAPIResponse(response.HTTPResponse, response.GetJSONDefault())
 }
 
 func (client *Client) authenticateRequest(ctx context.Context, request *http.Request) error {
@@ -773,7 +775,14 @@ func (client *Client) operationID() string {
 	pc, _, _, _ := runtime.Caller(3)
 	caller := runtime.FuncForPC(pc)
 	callerName := caller.Name()
-	return callerName[strings.LastIndex(callerName, ".")+1:]
+	shortCallerName := callerName[strings.LastIndex(callerName, ".")+1:]
+	if !unicode.IsUpper([]rune(shortCallerName)[0]) {
+		pc, _, _, _ = runtime.Caller(4)
+		caller = runtime.FuncForPC(pc)
+		callerName = caller.Name()
+		shortCallerName = callerName[strings.LastIndex(callerName, ".")+1:]
+	}
+	return shortCallerName
 }
 
 func (client *Client) wrapSystemError(err error) error {
@@ -781,11 +790,15 @@ func (client *Client) wrapSystemError(err error) error {
 }
 
 func (client *Client) checkAPIResponse(httpResponse *http.Response, apiResponse *api.ErrorResponse) error {
-	if apiResponse != nil {
+	if apiResponse != nil && apiResponse.Errors != nil {
 		apiErrList := *apiResponse.Errors
 		apiErrs := make([]error, 0, len(apiErrList))
 		for _, apiErr := range apiErrList {
-			apiErrs = append(apiErrs, &apiError{Code: apiErr.Code, Message: *apiErr.Message})
+			message := ""
+			if apiErr.Message != nil {
+				message = *apiErr.Message
+			}
+			apiErrs = append(apiErrs, &apiError{Code: apiErr.Code, Message: message})
 		}
 		if len(apiErrs) > 0 {
 			return fmt.Errorf("%w %s (cause: %w)", ErrAPIFailure, client.operationID(), errors.Join(apiErrs...))
@@ -793,6 +806,18 @@ func (client *Client) checkAPIResponse(httpResponse *http.Response, apiResponse 
 	}
 	if httpResponse.StatusCode != http.StatusOK {
 		return fmt.Errorf("%w %s (status: %s)", ErrAPIFailure, client.operationID(), httpResponse.Status)
+	}
+	return nil
+}
+
+func (client *Client) checkAPIResponseWithBody(httpResponse *http.Response, apiResponse *api.ErrorResponse, body any) error {
+	err := client.checkAPIResponse(httpResponse, apiResponse)
+	if err != nil {
+		return err
+	}
+	v := reflect.ValueOf(body)
+	if v.Kind() != reflect.Pointer || v.IsNil() {
+		return fmt.Errorf("%w empty or unexpected response", ErrAPIFailure)
 	}
 	return nil
 }

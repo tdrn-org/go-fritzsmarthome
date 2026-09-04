@@ -79,14 +79,16 @@ func TestInvalidAPI(t *testing.T) {
 	require.Nil(t, response.JSON200)
 }
 
-func TestInvalidLogin(t *testing.T) {
+func TestNotAuthorized(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v0/smarthome/overview", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusUnauthorized)
+		message := "unauthorized"
 		errors := api.ErrorList{
 			{
-				Code: 3001,
+				Code:    3001,
+				Message: &message,
 			},
 		}
 		response := &api.ErrorResponse{

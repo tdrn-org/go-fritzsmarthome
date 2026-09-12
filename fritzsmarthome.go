@@ -766,7 +766,7 @@ func (client *Client) authenticateRequest(ctx context.Context, request *http.Req
 	client.mutex.RLock()
 	defer client.mutex.RUnlock()
 	if client.authorization != "" {
-		request.Header.Add(api.AuthorizationHeader, client.authorization)
+		request.Header.Set(api.AuthorizationHeader, client.authorization)
 	}
 	return nil
 }

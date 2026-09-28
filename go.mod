@@ -1,6 +1,8 @@
 module github.com/tdrn-org/go-fritzsmarthome
 
-go 1.26.0
+go 1.26
+
+toolchain go1.27.1
 
 require (
 	github.com/oapi-codegen/runtime v1.7.0
